@@ -1,227 +1,228 @@
 長庚大學 大數據分析方法 作業三
 ================
 
-作業說明 （繳交時請直接刪除這個章節）
--------------------------------------
-
-作業目的：練習初級爬蟲，並將爬蟲結果整理成資料框data.frame
-
-依下列指示，完成網站內文分析：
-
--   爬取指定網站內容
-    -   學號結尾 0,4,8:[Ptt Tech\_Job 版](https://www.ptt.cc/bbs/Tech_Job/index.html)
-    -   學號結尾 1,5,9:[Ptt NBA 版](https://www.ptt.cc/bbs/NBA/index.html)
-    -   學號結尾 2,6:[Ptt LoL 版](https://www.ptt.cc/bbs/LoL/index.html)
-    -   學號結尾 3,7:[Ptt movie 版](https://www.ptt.cc/bbs/movie/index.html)
--   試著爬出**至少100篇**文章（`30pt`）的**標題**、**推文數**與**作者ID**（各`10pt`）
-    -   資料框欄位名稱：
-        -   **標題**：Title
-        -   **推文數**：PushNum
-        -   **作者ID**：Author
-    -   一頁只有20篇，該怎麼辦？
-        -   提示：使用for + rbind()將分批爬取出的資料結合
-        -   範例：dataframeAll&lt;-rbind(dataframe1,dataframe2)
-        -   參考：[6.6 資料組合](http://yijutseng.github.io/DataScienceRBook/manipulation.html#section-6.6)
--   將爬取出的資料輸出至Markdown報告中（`10pt`）
-    -   使用knitr::kable(資料框物件)整理輸出
--   用文字搭配程式碼解釋爬蟲結果
-    -   共爬出幾篇文章標題？（程式碼與文字解釋各`5pt`）
-        -   dim(), nrow(), str()皆可
-    -   哪個作者文章數最多？（程式碼與文字解釋各`5pt`）
-        -   table()
-    -   其他爬蟲結果解釋（`10pt`）
-        -   試著找出有趣的現象，不一定要用程式碼搭配解釋，也可只用文字
-
 網站資料爬取
 ------------
 
 ``` r
 #這是R Code Chunk
-library(rvest) ##第一次使用要先安裝 install.packages("rvest")
+library(rvest)
 ```
+
+    ## Warning: package 'rvest' was built under R version 3.3.3
 
     ## Loading required package: xml2
 
+    ## Warning: package 'xml2' was built under R version 3.3.3
+
 ``` r
-##read_html
-##html_nodes
-##html_text
+dataframeAll<-""
+for(n in 7120:7115){
+ptt<-paste0("https://www.ptt.cc/bbs/LoL/index",n,".html")
+pttContent<-read_html(ptt)
+post_title <- pttContent %>% html_nodes(".title") %>% html_text()
+post_pushNum <- pttContent %>% html_nodes(".nrec") %>% html_text()
+post_author <- pttContent %>% html_nodes(".author") %>% html_text()
+ptt_posts <- data.frame(pushNum=post_pushNum,title = post_title, author=post_author)
+dataframeAll<-rbind(dataframeAll,ptt_posts)
+}
 ```
+
+    ## Warning in `[<-.factor`(`*tmp*`, ri, value = ""): invalid factor level, NA
+    ## generated
+
+    ## Warning in `[<-.factor`(`*tmp*`, ri, value = ""): invalid factor level, NA
+    ## generated
 
 爬蟲結果呈現
 ------------
 
 ``` r
 #這是R Code Chunk
-knitr::kable(iris) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
+knitr::kable(dataframeAll) 
 ```
 
-|  Sepal.Length|  Sepal.Width|  Petal.Length|  Petal.Width| Species    |
-|-------------:|------------:|-------------:|------------:|:-----------|
-|           5.1|          3.5|           1.4|          0.2| setosa     |
-|           4.9|          3.0|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.3|          0.2| setosa     |
-|           4.6|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.6|           1.4|          0.2| setosa     |
-|           5.4|          3.9|           1.7|          0.4| setosa     |
-|           4.6|          3.4|           1.4|          0.3| setosa     |
-|           5.0|          3.4|           1.5|          0.2| setosa     |
-|           4.4|          2.9|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.1| setosa     |
-|           5.4|          3.7|           1.5|          0.2| setosa     |
-|           4.8|          3.4|           1.6|          0.2| setosa     |
-|           4.8|          3.0|           1.4|          0.1| setosa     |
-|           4.3|          3.0|           1.1|          0.1| setosa     |
-|           5.8|          4.0|           1.2|          0.2| setosa     |
-|           5.7|          4.4|           1.5|          0.4| setosa     |
-|           5.4|          3.9|           1.3|          0.4| setosa     |
-|           5.1|          3.5|           1.4|          0.3| setosa     |
-|           5.7|          3.8|           1.7|          0.3| setosa     |
-|           5.1|          3.8|           1.5|          0.3| setosa     |
-|           5.4|          3.4|           1.7|          0.2| setosa     |
-|           5.1|          3.7|           1.5|          0.4| setosa     |
-|           4.6|          3.6|           1.0|          0.2| setosa     |
-|           5.1|          3.3|           1.7|          0.5| setosa     |
-|           4.8|          3.4|           1.9|          0.2| setosa     |
-|           5.0|          3.0|           1.6|          0.2| setosa     |
-|           5.0|          3.4|           1.6|          0.4| setosa     |
-|           5.2|          3.5|           1.5|          0.2| setosa     |
-|           5.2|          3.4|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.6|          0.2| setosa     |
-|           4.8|          3.1|           1.6|          0.2| setosa     |
-|           5.4|          3.4|           1.5|          0.4| setosa     |
-|           5.2|          4.1|           1.5|          0.1| setosa     |
-|           5.5|          4.2|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.2|           1.2|          0.2| setosa     |
-|           5.5|          3.5|           1.3|          0.2| setosa     |
-|           4.9|          3.6|           1.4|          0.1| setosa     |
-|           4.4|          3.0|           1.3|          0.2| setosa     |
-|           5.1|          3.4|           1.5|          0.2| setosa     |
-|           5.0|          3.5|           1.3|          0.3| setosa     |
-|           4.5|          2.3|           1.3|          0.3| setosa     |
-|           4.4|          3.2|           1.3|          0.2| setosa     |
-|           5.0|          3.5|           1.6|          0.6| setosa     |
-|           5.1|          3.8|           1.9|          0.4| setosa     |
-|           4.8|          3.0|           1.4|          0.3| setosa     |
-|           5.1|          3.8|           1.6|          0.2| setosa     |
-|           4.6|          3.2|           1.4|          0.2| setosa     |
-|           5.3|          3.7|           1.5|          0.2| setosa     |
-|           5.0|          3.3|           1.4|          0.2| setosa     |
-|           7.0|          3.2|           4.7|          1.4| versicolor |
-|           6.4|          3.2|           4.5|          1.5| versicolor |
-|           6.9|          3.1|           4.9|          1.5| versicolor |
-|           5.5|          2.3|           4.0|          1.3| versicolor |
-|           6.5|          2.8|           4.6|          1.5| versicolor |
-|           5.7|          2.8|           4.5|          1.3| versicolor |
-|           6.3|          3.3|           4.7|          1.6| versicolor |
-|           4.9|          2.4|           3.3|          1.0| versicolor |
-|           6.6|          2.9|           4.6|          1.3| versicolor |
-|           5.2|          2.7|           3.9|          1.4| versicolor |
-|           5.0|          2.0|           3.5|          1.0| versicolor |
-|           5.9|          3.0|           4.2|          1.5| versicolor |
-|           6.0|          2.2|           4.0|          1.0| versicolor |
-|           6.1|          2.9|           4.7|          1.4| versicolor |
-|           5.6|          2.9|           3.6|          1.3| versicolor |
-|           6.7|          3.1|           4.4|          1.4| versicolor |
-|           5.6|          3.0|           4.5|          1.5| versicolor |
-|           5.8|          2.7|           4.1|          1.0| versicolor |
-|           6.2|          2.2|           4.5|          1.5| versicolor |
-|           5.6|          2.5|           3.9|          1.1| versicolor |
-|           5.9|          3.2|           4.8|          1.8| versicolor |
-|           6.1|          2.8|           4.0|          1.3| versicolor |
-|           6.3|          2.5|           4.9|          1.5| versicolor |
-|           6.1|          2.8|           4.7|          1.2| versicolor |
-|           6.4|          2.9|           4.3|          1.3| versicolor |
-|           6.6|          3.0|           4.4|          1.4| versicolor |
-|           6.8|          2.8|           4.8|          1.4| versicolor |
-|           6.7|          3.0|           5.0|          1.7| versicolor |
-|           6.0|          2.9|           4.5|          1.5| versicolor |
-|           5.7|          2.6|           3.5|          1.0| versicolor |
-|           5.5|          2.4|           3.8|          1.1| versicolor |
-|           5.5|          2.4|           3.7|          1.0| versicolor |
-|           5.8|          2.7|           3.9|          1.2| versicolor |
-|           6.0|          2.7|           5.1|          1.6| versicolor |
-|           5.4|          3.0|           4.5|          1.5| versicolor |
-|           6.0|          3.4|           4.5|          1.6| versicolor |
-|           6.7|          3.1|           4.7|          1.5| versicolor |
-|           6.3|          2.3|           4.4|          1.3| versicolor |
-|           5.6|          3.0|           4.1|          1.3| versicolor |
-|           5.5|          2.5|           4.0|          1.3| versicolor |
-|           5.5|          2.6|           4.4|          1.2| versicolor |
-|           6.1|          3.0|           4.6|          1.4| versicolor |
-|           5.8|          2.6|           4.0|          1.2| versicolor |
-|           5.0|          2.3|           3.3|          1.0| versicolor |
-|           5.6|          2.7|           4.2|          1.3| versicolor |
-|           5.7|          3.0|           4.2|          1.2| versicolor |
-|           5.7|          2.9|           4.2|          1.3| versicolor |
-|           6.2|          2.9|           4.3|          1.3| versicolor |
-|           5.1|          2.5|           3.0|          1.1| versicolor |
-|           5.7|          2.8|           4.1|          1.3| versicolor |
-|           6.3|          3.3|           6.0|          2.5| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           7.1|          3.0|           5.9|          2.1| virginica  |
-|           6.3|          2.9|           5.6|          1.8| virginica  |
-|           6.5|          3.0|           5.8|          2.2| virginica  |
-|           7.6|          3.0|           6.6|          2.1| virginica  |
-|           4.9|          2.5|           4.5|          1.7| virginica  |
-|           7.3|          2.9|           6.3|          1.8| virginica  |
-|           6.7|          2.5|           5.8|          1.8| virginica  |
-|           7.2|          3.6|           6.1|          2.5| virginica  |
-|           6.5|          3.2|           5.1|          2.0| virginica  |
-|           6.4|          2.7|           5.3|          1.9| virginica  |
-|           6.8|          3.0|           5.5|          2.1| virginica  |
-|           5.7|          2.5|           5.0|          2.0| virginica  |
-|           5.8|          2.8|           5.1|          2.4| virginica  |
-|           6.4|          3.2|           5.3|          2.3| virginica  |
-|           6.5|          3.0|           5.5|          1.8| virginica  |
-|           7.7|          3.8|           6.7|          2.2| virginica  |
-|           7.7|          2.6|           6.9|          2.3| virginica  |
-|           6.0|          2.2|           5.0|          1.5| virginica  |
-|           6.9|          3.2|           5.7|          2.3| virginica  |
-|           5.6|          2.8|           4.9|          2.0| virginica  |
-|           7.7|          2.8|           6.7|          2.0| virginica  |
-|           6.3|          2.7|           4.9|          1.8| virginica  |
-|           6.7|          3.3|           5.7|          2.1| virginica  |
-|           7.2|          3.2|           6.0|          1.8| virginica  |
-|           6.2|          2.8|           4.8|          1.8| virginica  |
-|           6.1|          3.0|           4.9|          1.8| virginica  |
-|           6.4|          2.8|           5.6|          2.1| virginica  |
-|           7.2|          3.0|           5.8|          1.6| virginica  |
-|           7.4|          2.8|           6.1|          1.9| virginica  |
-|           7.9|          3.8|           6.4|          2.0| virginica  |
-|           6.4|          2.8|           5.6|          2.2| virginica  |
-|           6.3|          2.8|           5.1|          1.5| virginica  |
-|           6.1|          2.6|           5.6|          1.4| virginica  |
-|           7.7|          3.0|           6.1|          2.3| virginica  |
-|           6.3|          3.4|           5.6|          2.4| virginica  |
-|           6.4|          3.1|           5.5|          1.8| virginica  |
-|           6.0|          3.0|           4.8|          1.8| virginica  |
-|           6.9|          3.1|           5.4|          2.1| virginica  |
-|           6.7|          3.1|           5.6|          2.4| virginica  |
-|           6.9|          3.1|           5.1|          2.3| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           6.8|          3.2|           5.9|          2.3| virginica  |
-|           6.7|          3.3|           5.7|          2.5| virginica  |
-|           6.7|          3.0|           5.2|          2.3| virginica  |
-|           6.3|          2.5|           5.0|          1.9| virginica  |
-|           6.5|          3.0|           5.2|          2.0| virginica  |
-|           6.2|          3.4|           5.4|          2.3| virginica  |
-|           5.9|          3.0|           5.1|          1.8| virginica  |
+| pushNum | title                                            | author       |
+|:--------|:-------------------------------------------------|:-------------|
+|         | NA                                               | NA           |
+|         | Re: \[問題\] 國動的崛起是否意味著lol走偏了       | tigotigo5566 |
+| 11      | \[問題\] 潘森是線霸嗎?                           | FrogStar     |
+| X2      | \[閒聊\] 探討犽宿的風牆效用                      | Baledu       |
+|         | (本文已被刪除) \[LIN6627\]                       | -            |
+|         | \[問題\] 不投降跟風氣差 跟張家兄弟有什麼關係?    | godband5566  |
+| X1      | \[閒聊\] 打野該積極gank嗎                        | FollowMe6    |
+| 1       | Re: \[閒聊\] Apex回答太狂 還是大魚功力不足？     | birdanderson |
+| 65      | \[閒聊\] 國棟的鼻地戰術是傳承了中國武術？        | stu88001     |
+|         | (本文已被刪除) \[qwertytrew\]                    | -            |
+|         | \[閒聊\] 賈克斯打sup為啥不行                     | tigotigo5566 |
+| 5       | Re: \[閒聊\] Apex回答太狂 還是大魚功力不足？     | InnGee       |
+| 31      | \[問題\] 殞落王者之劍是不是很適合特朗德?         | FrogStar     |
+| 18      | \[閒聊\] WS如果要贏到底還缺了甚麼東西?           | orange0319   |
+| 17      | \[實況\] 胡瓜太郎 Otofu 台服鑽二Sup遊玩中        | goodjob622   |
+| 86      | \[實況\] M17 APEX                                | shan0825     |
+| 19      | \[問題\] ARAM也有高低端場分別嗎?                 | osbsd1       |
+| 20      | \[實況\] FW NL / 煞氣o狂by衝崩銨                 | ns96729      |
+| 10      | \[閒聊\] 解說記得的正宗中文教學                  | diefish5566  |
+| 4       | \[問題\] 丁特有考慮練蒙多醫生JG嗎？              | ru04ul4      |
+| 8       | \[閒聊\] HKE韓服成績真的深不可測                 | stben        |
+| 13      | \[閒聊\] 會看EU&其他區比賽的人 是用什麼心情在看? | jakert123    |
+| 57      | \[外絮\] Peanut安慰沒進入季後賽的Gorilla         | aaronshell   |
+| 9       | \[閒聊\] 如果實況界沒統神現在會是甚麼風氣?       | KENDO777     |
+| 21      | \[影片\]【國動】被戳到爆氣開啟動粉見面會         | sky082       |
+|         | Re: \[閒聊\] 如果實況界沒統神現在會是甚麼風氣?   | ardan3355    |
+|         | (本文已被刪除) \[asd0952\]                       | -            |
+|         | \[揪團\] 金牌彈性-1                              | jun12344     |
+| 50      | \[閒聊\] Apex回答太狂 還是大魚功力不足？         | Tiandai      |
+| 22      | \[閒聊\] Weekly LCK Mic check                    | s80554       |
+|         | (本文已被刪除) \[pttpig\]                        | -            |
+| 49      | Re: \[閒聊\] Apex回答太狂 還是大魚功力不足？     | bingtsien    |
+|         | (本文已被刪除) \[melon1001\]                     | -            |
+| 34      | \[閒聊\] 有沒有專精克雷德的玩家來交流個          | silly7995    |
+| 1       | \[揪團\] 找上白金的夥伴                          | trollriven   |
+| 2       | \[揪團\] 銅銀小號雙排                            | FJUmars      |
+| X1      | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | McHamburger  |
+|         | \[實況\] 刺刺的 韓服 金三                        | ym19950822   |
+|         | (本文已被刪除) \[hongou\]                        | -            |
+|         | \[實況\] 藍色風暴 龍獸 金牌RANK<sub>~</sub>      | pcnetworld   |
+| 5       | Re: \[問題\] 國動的崛起是否意味著lol走偏了       | tenshoufly   |
+|         | \[閒聊\] 是不是應該拔除某些玩家的投票權          | joshua0606   |
+| 6       | \[閒聊\] 同人圖分享-你以為有貓我就會推嗎？       | f222051618   |
+| 11      | \[閒聊\] 【統神】深夜真性情—那些年的誤會委屈     | g8320484816  |
+| 17      | \[閒聊\] 小熊 Yuniko FB                          | Comebuy      |
+| 18      | \[ANSI\] 瓦羅然沒有派對                          | AlzioNever   |
+| 46      | \[閒聊\] 大家按Q技能會用小拇指嗎?                | phillp0804   |
+| 4       | Re: \[問題\] 國動的崛起是否意味著lol走偏了       | sincossincos |
+| 3       | Re: \[閒聊\] 這季MVP該給誰                       | Re12345      |
+| 11      | \[閒聊\] 一發死的角色是不是逐漸消失中?           | greattower   |
+| 2       | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | kingion      |
+|         | (本文已被刪除) \[dant123\]                       | -            |
+| 76      | \[發錢\] 國考放榜來猜猜灰鵝喜歡的LCK選手         | where1993    |
+| 37      | \[閒聊\] HKE vs. M17 G2 分析台+國人訪問逐字      | eltar        |
+| 15      | Re: \[閒聊\] 大家按Q技能會用小拇指嗎?            | s930406      |
+| 2       | Re: \[閒聊\] LMS春季第一隊的上路會是誰？         | willia5566   |
+| 9       | Re: \[問題\] 國動的崛起是否意味著lol走偏了       | arrenwu      |
+| 3       | Re: \[閒聊\] LMS春季第一隊的上路會是誰？         | kingion      |
+| 17      | \[閒聊\] 美板官方粉絲團 FB                       | Comebuy      |
+| 30      | \[閒聊\] ROC是不是很悲情？                       | andy82116    |
+| 3       | \[電競\] 2017 NA LCS夏季升降賽Day3 NV vs. GCU    | cherrycheese |
+| 爆      | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | ice91312     |
+| 2       | \[閒聊\] 是不是只有進入遊戲畫面才知道ping值      | supereight   |
+| 78      | \[公告\] 樂透退盤處置說明                        | rainnawind   |
+| 29      | Re: \[閒聊\] Gear是不是真的過譽了？              | Re12345      |
+|         | \[實況\] 獄胤天 清明時節雨紛紛 分分塊來RRR       | asdfg5247    |
+| 10      | \[問題\] 國動的崛起是否意味著lol走偏了           | fdfdfdfd51   |
+| 2       | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | ArtemXis     |
+| 30      | \[閒聊\] 這季MVP該給誰                           | zzsh3533     |
+| 59      | \[閒聊\] 恭喜M17 (已發)                          | China666     |
+| 23      | \[閒聊\] 四強的各路大家覺得強度比較？            | godshibainu  |
+| 31      | (已被rainnawind刪除) <frank123ya>                | -            |
+| 2       | \[實況\] HKE KuKu / 口口口口口 跟韓國人定輸贏    | a089069      |
+| 53      | \[閒聊\] M17要是5人同時醒著 能給前兩隊衝擊嗎?    | JuicyChen    |
+| 15      | (本文已被刪除) \[FrogStar\]                      | -            |
+|         | (本文已被刪除) \[AlzioNever\]                    | -            |
+| 25      | \[外絮\] Kt Score:會拿出如粉絲所期待的表現       | ubiqui       |
+| 3       | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | wade8204     |
+| 爆      | \[公告\] 在此向frank123ya公開致歉                | rainnawind   |
+| 2       | (已被samhou6刪除) <ArtemXis> D1                  | -            |
+| 26      | \[閒聊\] 本周LMS觀賽重點整理                     | InnGee       |
+| 7       | \[閒聊\] HKE打不進季後賽之後該如何補強?          | a25270672    |
+| 3       | \[閒聊\] 同人圖分享-海潮之音 娜米 Nami           | f222051618   |
+| 24      | \[閒聊\] Gear是不是真的過譽了？                  | HomerEDLee   |
+| 21      | \[閒聊\] 鐘老闆現在在想什麼?                     | brave0618    |
+| 2       | \[電競\] LCL SPRING 2017-SEMIFINAL D2            | vic830710    |
+| 15      | \[閒聊\] 最喜歡隊友選什麼角色                    | HAHEinthebar |
+| 7       | (已被rainnawind刪除) <jumpballfan>Done           | -            |
+| 5       | \[實況\] SKT T1 kkOma                            | narutodante  |
+| 1       | \[揪團\] 秀造型NG團~ 關鍵字 -3 9:25              | main9        |
+|         | \[實況\] 性感荷官 彈性積分/慎上路                | MRsoso       |
+| 52      | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | fkc          |
+| 60      | \[電競\] 2017 LCS EU Spring W10D4 Final Day      | frank123ya   |
+|         | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | a127         |
+| 18      | \[閒聊\] 2017 LMS春季聯賽Highlight Reel 第三集   | Comebuy      |
+|         | \[閒聊\] Gemini李星到底在幹嘛? 站著發呆10幾秒    | generalfungi |
+| 7       | \[閒聊\] 為啥明明是他路差距卻都怪gear            | SanyaMyBride |
+| 8       | \[閒聊\] HKE很愛炒短線?                          | China666     |
+| 4       | \[公告\] LoL 樂透取消                            | \[彩券\]     |
+|         | Re: \[問題\] 死不投降是不是台服素質如此差的原因? | loki5566     |
+| 6       | \[揪團\] 陪我一起打好不好(滿)                    | oneeee       |
+| 60      | \[閒聊\] FW Betty FB(三則)                       | c871111116   |
+| 6       | \[閒聊\] hke的下路是不是太有信心?                | brave0618    |
+| 7       | Re: \[問題\] 玩LOL玩到跟弟弟吵架                 | fdfdfdfd51   |
+| 24      | \[閒聊\] M17泰山醒了嗎                           | ss8901234    |
+| 35      | \[閒聊\] ZZZ可以當LMS前三上路了吧？？            | jeff95123    |
+| 1       | \[電競\] TCL WINTER 2017-PLAYOFF R1D2            | vic830710    |
+| 7       | \[問題\] 第二場Gemini在幹嘛                      | DioEraclea   |
+|         | \[閒聊\] 還我特哥= =                             | YamCha       |
+| 17      | \[問題\] 如果剛剛HKE中路是西門                   | gn01914712   |
+| X2      | \[影片\] Faker用西門3V5 penta kill               | powyo        |
+| 4       | \[揪團\] 邊緣人連假NG團 第一場粗花               | joesmile     |
+| 7       | \[外絮\] VG賽後采訪：打比賽時沒那麼大的心理壓力  | iamwhoim     |
+| 29      | \[閒聊\] HKE洞在哪?                              | s24066774    |
+| 14      | \[閒聊\] JT要怎麼抵擋手已經熱了的M17             | iamfenixsc   |
+| 26      | \[閒聊\] M17的宰制力...我看錯聯賽了？            | LKK549777    |
+| 22      | \[閒聊\] HKE少了Toyz這名智商型選手 真的差太多了  | vovzz        |
+| 68      | \[實況\] 斗基督機大神/鬼話新聞紅蟻               | d86249       |
+| 2       | \[揪團\] 小號積分                                | undefeated04 |
+|         | (本文已被刪除) \[vogue38\]                       | -            |
+| 21      | \[閒聊\] LMS春季第一隊的上路會是誰？             | bygamantou   |
 
 解釋爬蟲結果
 ------------
 
 ``` r
 #這是R Code Chunk
+dim(dataframeAll)
 ```
 
-解釋解釋解釋解釋
+    ## [1] 121   3
+
+共爬出121篇文章（第一篇為null）。
 
 ``` r
 #這是R Code Chunk
+table(dataframeAll$author)
 ```
 
-解釋解釋解釋解釋
+    ## 
+    ##            -       Baledu birdanderson  diefish5566    FollowMe6 
+    ##           13            1            1            1            1 
+    ##     FrogStar  godband5566   goodjob622       InnGee      ns96729 
+    ##            2            1            1            2            1 
+    ##   orange0319       osbsd1      ru04ul4     shan0825        stben 
+    ##            1            1            1            1            1 
+    ##     stu88001 tigotigo5566   aaronshell    ardan3355    bingtsien 
+    ##            1            2            1            1            1 
+    ##      FJUmars    jakert123     jun12344     KENDO777  McHamburger 
+    ##            1            1            1            1            1 
+    ##   pcnetworld       s80554    silly7995       sky082   tenshoufly 
+    ##            1            1            1            1            1 
+    ##      Tiandai   trollriven   ym19950822   AlzioNever    andy82116 
+    ##            1            1            1            1            1 
+    ##      arrenwu cherrycheese      Comebuy        eltar   f222051618 
+    ##            1            1            3            1            2 
+    ##  g8320484816   greattower   joshua0606      kingion   phillp0804 
+    ##            1            1            1            2            1 
+    ##      Re12345      s930406 sincossincos    where1993   willia5566 
+    ##            2            1            1            1            1 
+    ##      a089069     ArtemXis    asdfg5247     China666   fdfdfdfd51 
+    ##            1            1            1            2            2 
+    ##  godshibainu     ice91312    JuicyChen   rainnawind   supereight 
+    ##            1            1            1            2            1 
+    ##       ubiqui     wade8204     zzsh3533       [彩券]         a127 
+    ##            1            1            1            1            1 
+    ##    a25270672    brave0618          fkc   frank123ya generalfungi 
+    ##            1            2            1            1            1 
+    ## HAHEinthebar   HomerEDLee     loki5566        main9       MRsoso 
+    ##            1            1            1            1            1 
+    ##  narutodante       oneeee SanyaMyBride    vic830710   bygamantou 
+    ##            1            1            1            2            1 
+    ##   c871111116       d86249   DioEraclea   gn01914712   iamfenixsc 
+    ##            1            1            1            1            1 
+    ##     iamwhoim    jeff95123     joesmile    LKK549777        powyo 
+    ##            1            1            1            1            1 
+    ##    s24066774    ss8901234 undefeated04        vovzz       YamCha 
+    ##            1            1            1            1            1
 
-人工結論與解釋解釋解釋解釋解釋解釋解釋
+就扒到的內容來看，Comebuy發表的文章數目最多，共有3篇。
+
+其他爬蟲結果: 就爬到的結果來看，LOL版面中的文章基本以\[閒聊\]為主，像\[實況\]和\[提問\]這類的文章很少，看的人也很少。
